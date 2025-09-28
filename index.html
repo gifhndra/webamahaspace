@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KampusConnect - Aplikasi Kampus Terintegrasi</title>
+    <style>
+        /* Reset dan Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #1a73e8, #6c8ef5);
+            color: white;
+            padding: 20px 15px;
+            border-radius: 0 0 20px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Navigation Styles */
+        .nav-tabs {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-tab.active {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background-color: #1a73e8;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        /* Content Styles */
+        .content {
+            padding: 20px 15px;
+            min-height: calc(100vh - 180px);
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #1a73e8;
+            font-weight: 600;
+        }
+        
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .card-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .status {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status.available {
+            background-color: #e6f4ea;
+            color: #137333;
+        }
+        
+        .status.borrowed {
+            background-color: #fce8e6;
+            color: #c5221f;
+        }
+        
+        .status.pending {
+            background-color: #fef7e0;
+            color: #a36c00;
+        }
+        
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #0d62d9;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #1a73e8;
+            color: #1a73e8;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            width: auto;
+            margin: 0;
+            font-size: 0.8rem;
+        }
+        
+        /* List Styles */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #1a73e8;
+            font-size: 1.2rem;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .item-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Profile Styles */
+        .profile-header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a73e8, #6c8ef5);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .profile-id {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .profile-menu {
+            margin-top: 30px;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            border-top: 1px solid #eee;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Date and Time Picker */
+        .datetime-picker {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .datetime-picker .form-group {
+            flex: 1;
+        }
+        
+        /* Confirmation Message */
+        .confirmation {
+            background-color: #e6f4ea;
+            border: 1px solid #34a853;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .confirmation.success {
+            display: block;
+        }
+        
+        .confirmation-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #34a853;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="app-title">KampusConnect</div>
+                <div class="user-avatar" onclick="showSection('profile')">👤</div>
+            </div>
+        </header>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showSection('home')">Beranda</div>
+            <div class="nav-tab" onclick="showSection('borrow')">Peminjaman</div>
+            <div class="nav-tab" onclick="showSection('classroom')">Kelas Kosong</div>
+            <div class="nav-tab" onclick="showSection('history')">Riwayat</div>
+            <div class="nav-tab" onclick="showSection('kos')">Kos/Kontrakan</div>
+        </div>
+        
+        <div class="content">
+            <!-- Beranda -->
+            <div id="home" class="section active">
+                <h2 class="section-title">Selamat Datang, Mahasiswa!</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">Peminjaman Alat Praktikum</h3>
+                    <p class="card-desc">Lihat ketersediaan dan pinjam alat praktikum seperti proyektor, laptop, dll.</p>
+                    <button class="btn" onclick="showSection('borrow')">Lihat Alat Tersedia</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Kelas Kosong Hari Ini</h3>
+                    <p class="card-desc">Temukan ruang kelas yang sedang tidak digunakan untuk belajar kelompok.</p>
+                    <div class="card-meta">
+                        <span>5 ruang tersedia</span>
+                        <span class="status available">Tersedia</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="showSection('classroom')">Lihat Semua Kelas</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Info Kos/Kontrakan</h3>
+                    <p class="card-desc">Temukan tempat tinggal terdekat dengan kampus dan hubungi pemiliknya.</p>
+                    <button class="btn btn-outline" onclick="showSection('kos')">Lihat Daftar</button>
+                </div>
+            </div>
+            
+            <!-- Peminjaman Alat -->
+            <div id="borrow" class="section">
+                <h2 class="section-title">Peminjaman Alat Praktikum</h2>
+                
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Cari alat praktikum..." id="searchTool">
+                </div>
+                
+                <div class="list-item">
+                    <div class="item-icon">📽️</div>
+                    <div class="item-content">
+                        <div class="item-title">Proyektor LCD</div>
+                        <div class="item-desc">Resolusi 1080p, kabel HDMI termasuk</div>
+                    </div>
+                    <span class="status available">Tersedia</span>
+                    <button class="btn-small btn-outline" onclick="openBorrowModal('Proyektor LCD')">Pinjam</button>
+                </div>
+                
+                <div class="list-item">
+                    <div class="item-icon">💻</div>
+                    <div class="item-content">
+                        <div class="item-title">Laptop Praktikum</div>
+                        <div class="item-desc">Intel i5, 8GB RAM, Windows 10</div>
+                    </div>
+                    <span class="status available">Tersedia</span>
+                    <button class="btn-small btn-outline" onclick="openBorrowModal('Laptop Praktikum')">Pinjam</button>
+                </div>
+                
+                <div class="list-item">
+                    <div class="item-icon">🔬</div>
+                    <div class="item-content">
+                        <div class="item-title">Mikroskop Digital</div>
+                        <div class="item-desc">Pembesaran 1000x, dengan kamera</div>
+                    </div>
+                    <span class="status borrowed">Dipinjam</span>
+                    <button class="btn-small btn-outline" disabled>Pinjam</button>
+                </div>
+                
+                <div class="list-item">
+                    <div class="item-icon">🎤</div>
+                    <div class="item-content">
+                        <div class="item-title">Microphone Wireless</div>
+                        <div class="item-desc">Jangkauan 50m, baterai tahan 8 jam</div>
+                    </div>
+                    <span class="status available">Tersedia</span>
+                    <button class="btn-small btn-outline" onclick="openBorrowModal('Microphone Wireless')">Pinjam</button>
+                </div>
+            </div>
+            
+            <!-- Kelas Kosong -->
+            <div id="classroom" class="section">
+                <h2 class="section-title">Kelas Kosong</h2>
+                
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Cari ruang kelas..." id="searchClassroom">
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Ruang A101</h3>
+                    <p class="card-desc">Gedung A, Lantai 1 - Kapasitas 40 orang</p>
+                    <div class="card-meta">
+                        <span>Kosong hingga 16:00</span>
+                        <span class="status available">Tersedia</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="openClassroomModal('Ruang A101')">Pinjam Ruangan</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Lab Komputer B203</h3>
+                    <p class="card-desc">Gedung B, Lantai 2 - 30 komputer tersedia</p>
+                    <div class="card-meta">
+                        <span>Kosong hingga 18:30</span>
+                        <span class="status available">Tersedia</span>
+                    </div>
+                    <button class="btn btn-outline" onclick="openClassroomModal('Lab Komputer B203')">Pinjam Ruangan</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Auditorium C301</h3>
+                    <p class="card-desc">Gedung C, Lantai 3 - Kapasitas 200 orang</p>
+                    <div class="card-meta">
+                        <span>Digunakan hingga 14:00</span>
+                        <span class="status borrowed">Terpakai</span>
+                    </div>
+                    <button class="btn btn-outline" disabled>Sedang Digunakan</button>
+                </div>
+            </div>
+            
+            <!-- Riwayat Peminjaman -->
+            <div id="history" class="section">
+                <h2 class="section-title">Riwayat Peminjaman</h2>
+                
+                <div class="card">
+                    <h3 class="card-title">Proyektor LCD</h3>
+                    <p class="card-desc">Dipinjam pada 15 Oktober 2023, 09:00 - 12:00</p>
+                    <div class="card-meta">
+                        <span>Status: <span class="status available">Selesai</span></span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Ruang A101</h3>
+                    <p class="card-desc">Dipinjam pada 14 Oktober 2023, 13:00 - 15:00</p>
+                    <div class="card-meta">
+                        <span>Status: <span class="status available">Selesai</span></span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Laptop Praktikum</h3>
+                    <p class="card-desc">Dipinjam pada 16 Oktober 2023, 10:00 - 12:00</p>
+                    <div class="card-meta">
+                        <span>Status: <span class="status pending">Menunggu Persetujuan</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Kos/Kontrakan -->
+            <div id="kos" class="section">
+                <h2 class="section-title">Kos & Kontrakan Sekitar Kampus</h2>
+                
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Cari kos/kontrakan...">
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Kos Putri "Sumber Rejeki"</h3>
+                    <p class="card-desc">Jl. Merdeka No. 45, 500m dari kampus</p>
+                    <div class="card-meta">
+                        <span>Rp 1.200.000/bulan</span>
+                        <span>Kamar tersedia: 3</span>
+                    </div>
+                    <button class="btn">Hubungi: 0812-3456-7890</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Kontrakan "Family House"</h3>
+                    <p class="card-desc">Jl. Pendidikan No. 12, 800m dari kampus</p>
+                    <div class="card-meta">
+                        <span>Rp 2.500.000/bulan</span>
+                        <span>2 kamar tidur</span>
+                    </div>
+                    <button class="btn">Hubungi: 0857-1234-5678</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Kos Campur "Pelajar"</h3>
+                    <p class="card-desc">Jl. Kampus Timur No. 8, 300m dari kampus</p>
+                    <div class="card-meta">
+                        <span>Rp 900.000/bulan</span>
+                        <span>Kamar tersedia: 2</span>
+                    </div>
+                    <button class="btn">Hubungi: 0821-9876-5432</button>
+                </div>
+            </div>
+            
+            <!-- Profile -->
+            <div id="profile" class="section">
+                <div class="profile-header">
+                    <div class="profile-avatar">M</div>
+                    <div class="profile-name">Mahasiswa Contoh</div>
+                    <div class="profile-id">NIM: 1234567890</div>
+                </div>
+                
+                <div class="profile-menu">
+                    <div class="list-item">
+                        <div class="item-icon">👤</div>
+                        <div class="item-content">
+                            <div class="item-title">Edit Profil</div>
+                            <div class="item-desc">Ubah informasi pribadi Anda</div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-item">
+                        <div class="item-icon">🔒</div>
+                        <div class="item-content">
+                            <div class="item-title">Keamanan</div>
+                            <div class="item-desc">Ganti kata sandi dan pengaturan keamanan</div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-item">
+                        <div class="item-icon">🔔</div>
+                        <div class="item-content">
+                            <div class="item-title">Notifikasi</div>
+                            <div class="item-desc">Kelola pemberitahuan aplikasi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-item">
+                        <div class="item-icon">❓</div>
+                        <div class="item-content">
+                            <div class="item-title">Bantuan</div>
+                            <div class="item-desc">Pusat bantuan dan dukungan</div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-item">
+                        <div class="item-icon">🚪</div>
+                        <div class="item-content">
+                            <div class="item-title">Keluar</div>
+                            <div class="item-desc">Keluar dari aplikasi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            KampusConnect &copy; 2023 - Aplikasi Kampus Terintegrasi
+        </footer>
+    </div>
+
+    <!-- Modal Peminjaman Alat -->
+    <div id="borrowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Pinjam Alat Praktikum</h3>
+                <button class="close-modal" onclick="closeModal('borrowModal')">&times;</button>
+            </div>
+            <div class="confirmation" id="borrowConfirmation">
+                <div class="confirmation-icon">✓</div>
+                <p>Permintaan peminjaman berhasil diajukan!</p>
+            </div>
+            <form id="borrowForm">
+                <div class="form-group">
+                    <label class="form-label">Alat yang Dipinjam</label>
+                    <input type="text" class="form-input" id="toolName" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tanggal Peminjaman</label>
+                    <input type="date" class="form-input" id="borrowDate" required>
+                </div>
+                <div class="datetime-picker">
+                    <div class="form-group">
+                        <label class="form-label">Waktu Mulai</label>
+                        <input type="time" class="form-input" id="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Waktu Selesai</label>
+                        <input type="time" class="form-input" id="endTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tujuan Peminjaman</label>
+                    <select class="form-select" id="purpose" required>
+                        <option value="">Pilih tujuan</option>
+                        <option value="praktikum">Praktikum</option>
+                        <option value="penelitian">Penelitian</option>
+                        <option value="presentasi">Presentasi</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keterangan Tambahan</label>
+                    <textarea class="form-input" id="notes" rows="3" placeholder="Opsional"></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('borrowModal')">Batal</button>
+                    <button type="submit" class="btn">Ajukan Peminjaman</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Peminjaman Kelas -->
+    <div id="classroomModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Pinjam Ruang Kelas</h3>
+                <button class="close-modal" onclick="closeModal('classroomModal')">&times;</button>
+            </div>
+            <div class="confirmation" id="classroomConfirmation">
+                <div class="confirmation-icon">✓</div>
+                <p>Permintaan peminjaman ruang kelas berhasil diajukan!</p>
+            </div>
+            <form id="classroomForm">
+                <div class="form-group">
+                    <label class="form-label">Ruang Kelas</label>
+                    <input type="text" class="form-input" id="classroomName" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tanggal Peminjaman</label>
+                    <input type="date" class="form-input" id="classroomDate" required>
+                </div>
+                <div class="datetime-picker">
+                    <div class="form-group">
+                        <label class="form-label">Waktu Mulai</label>
+                        <input type="time" class="form-input" id="classroomStartTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Waktu Selesai</label>
+                        <input type="time" class="form-input" id="classroomEndTime" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jumlah Peserta</label>
+                    <input type="number" class="form-input" id="participants" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kegiatan</label>
+                    <select class="form-select" id="activity" required>
+                        <option value="">Pilih kegiatan</option>
+                        <option value="belajar">Belajar Kelompok</option>
+                        <option value="rapat">Rapat Organisasi</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keterangan Tambahan</label>
+                    <textarea class="form-input" id="classroomNotes" rows="3" placeholder="Opsional"></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('classroomModal')">Batal</button>
+                    <button type="submit" class="btn">Ajukan Peminjaman</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Tampilkan section yang dipilih
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update tab aktif
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Jika bukan profile, aktifkan tab yang sesuai
+            if (sectionId !== 'profile') {
+                document.querySelector(`.nav-tab:nth-child(${getTabIndex(sectionId)})`).classList.add('active');
+            }
+        }
+        
+        function getTabIndex(sectionId) {
+            const sections = ['home', 'borrow', 'classroom', 'history', 'kos'];
+            return sections.indexOf(sectionId) + 1;
+        }
+        
+        // Fungsi untuk modal peminjaman alat
+        function openBorrowModal(toolName) {
+            document.getElementById('toolName').value = toolName;
+            
+            // Set tanggal minimal ke hari ini
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('borrowDate').min = today;
+            document.getElementById('borrowDate').value = today;
+            
+            // Reset form
+            document.getElementById('borrowForm').reset();
+            document.getElementById('borrowConfirmation').classList.remove('success');
+            
+            document.getElementById('borrowModal').style.display = 'flex';
+        }
+        
+        // Fungsi untuk modal peminjaman kelas
+        function openClassroomModal(classroomName) {
+            document.getElementById('classroomName').value = classroomName;
+            
+            // Set tanggal minimal ke hari ini
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('classroomDate').min = today;
+            document.getElementById('classroomDate').value = today;
+            
+            // Reset form
+            document.getElementById('classroomForm').reset();
+            document.getElementById('classroomConfirmation').classList.remove('success');
+            
+            document.getElementById('classroomModal').style.display = 'flex';
+        }
+        
+        // Fungsi untuk menutup modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Event listener untuk form peminjaman alat
+        document.getElementById('borrowForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulasi pengajuan peminjaman
+            document.getElementById('borrowConfirmation').classList.add('success');
+            
+            // Reset form setelah 2 detik dan tutup modal
+            setTimeout(() => {
+                document.getElementById('borrowForm').reset();
+                closeModal('borrowModal');
+                
+                // Tampilkan notifikasi di riwayat (simulasi)
+                alert('Peminjaman alat berhasil diajukan!');
+            }, 2000);
+        });
+        
+        // Event listener untuk form peminjaman kelas
+        document.getElementById('classroomForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulasi pengajuan peminjaman
+            document.getElementById('classroomConfirmation').classList.add('success');
+            
+            // Reset form setelah 2 detik dan tutup modal
+            setTimeout(() => {
+                document.getElementById('classroomForm').reset();
+                closeModal('classroomModal');
+                
+                // Tampilkan notifikasi di riwayat (simulasi)
+                alert('Peminjaman ruang kelas berhasil diajukan!');
+            }, 2000);
+        });
+        
+        // Fungsi pencarian alat
+        document.getElementById('searchTool').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const items = document.querySelectorAll('#borrow .list-item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('.item-title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // Fungsi pencarian kelas
+        document.getElementById('searchClassroom').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const cards = document.querySelectorAll('#classroom .card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
